@@ -12,14 +12,17 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    @selected_ratings = params[:ratings]
-    sort_type = params[:sort_method]
-    #g_rating = :ratings.tap {|rating| "rating_#{rating}"
     
-    if @selected_ratings == nil
+    params[:ratings] ||= session[:selected_ratings]
+    session[:selected_ratings] = params[:ratings]
+   
+    params[:sort_method] ||= session[:sort_type]
+    session[:sort_type] = params[:sort_method]
+    
+    if session[:selected_ratings] == nil
       @check_hash = {"G" => "2", "PG" => "2","PG-13" => "2", "R" => "2"}
       @selected_ratings = Movie.all_ratings
-      case sort_type
+      case session[:sort_type]
       when 'movie_title'
         @title_header = "hilite"
         @movies = Movie.where(:rating => @selected_ratings).order(:title => :asc)
@@ -31,16 +34,16 @@ class MoviesController < ApplicationController
       end
     
     else
-      @check_hash = @selected_ratings
-      case sort_type
+      @check_hash = session[:selected_ratings]
+      case session[:sort_type]
       when 'movie_title'
         @title_header = "hilite"
-        @movies = Movie.where(:rating => @selected_ratings.keys).order(:title => :asc)
+        @movies = Movie.where(:rating => session[:selected_ratings].keys).order(:title => :asc)
       when 'date_released'
         @release_date_header = "hilite"
-        @movies = Movie.where(:rating => @selected_ratings.keys).order(:release_date => :asc)
+        @movies = Movie.where(:rating => session[:selected_ratings].keys).order(:release_date => :asc)
       else
-        @movies = Movie.where(:rating => @selected_ratings.keys)
+        @movies = Movie.where(:rating => session[:selected_ratings].keys)
       end
     end
   end
