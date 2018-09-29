@@ -11,16 +11,37 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.all_ratings
+    @selected_ratings = params[:ratings]
     sort_type = params[:sort_method]
-    case sort_type
-    when 'movie_title'
-      @title_header = "hilite"
-      @movies = Movie.all.order(:title => :asc)
-    when 'date_released'
-      @release_date_header = "hilite"
-      @movies = Movie.all.order(:release_date => :asc)
+    #g_rating = :ratings.tap {|rating| "rating_#{rating}"
+    
+    if @selected_ratings == nil
+      @check_hash = {"G" => "2", "PG" => "2","PG-13" => "2", "R" => "2"}
+      @selected_ratings = Movie.all_ratings
+      case sort_type
+      when 'movie_title'
+        @title_header = "hilite"
+        @movies = Movie.where(:rating => @selected_ratings).order(:title => :asc)
+      when 'date_released'
+        @release_date_header = "hilite"
+        @movies = Movie.where(:rating => @selected_ratings).order(:release_date => :asc)
+      else
+        @movies = Movie.where(:rating => @selected_ratings)
+      end
+    
     else
-      @movies = Movie.all
+      @check_hash = @selected_ratings
+      case sort_type
+      when 'movie_title'
+        @title_header = "hilite"
+        @movies = Movie.where(:rating => @selected_ratings.keys).order(:title => :asc)
+      when 'date_released'
+        @release_date_header = "hilite"
+        @movies = Movie.where(:rating => @selected_ratings.keys).order(:release_date => :asc)
+      else
+        @movies = Movie.where(:rating => @selected_ratings.keys)
+      end
     end
   end
 
