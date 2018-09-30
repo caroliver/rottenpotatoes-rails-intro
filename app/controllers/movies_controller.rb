@@ -23,7 +23,7 @@ class MoviesController < ApplicationController
     @sort_type = session[:sort_type]
     
     if @selected_ratings == nil
-      @check_hash = {"G" => "2", "PG" => "2","PG-13" => "2", "R" => "2"}
+      @check_hash = {"G" => "1", "PG" => "1","PG-13" => "1", "R" => "1"}
       @selected_ratings = Movie.all_ratings
       case @sort_type
       when 'movie_title'
@@ -56,27 +56,27 @@ class MoviesController < ApplicationController
   end
 
   def create
-    @movie = Movie.create!(movie_params)
-    flash.keep[:notice] = "#{@movie.title} was successfully created."
-    redirect_to :sort_method => @sort_type, :ratings => @selected_ratings and return 
+  @movie = Movie.create!(movie_params)
+  flash.keep[:notice] = "#{@movie.title} was successfully created."
+  redirect_to movies_path :sort_method => @sort_type, :ratings => @selected_ratings and return 
   end
 
   def edit
     @movie = Movie.find params[:id]
   end
-
+  
   def update
     @movie = Movie.find params[:id]
     @movie.update_attributes!(movie_params)
     flash.keep[:notice] = "#{@movie.title} was successfully updated."
     redirect_to :sort_method => @sort_type, :ratings => @selected_ratings and return 
   end
-
+  
   def destroy
     @movie = Movie.find(params[:id])
     @movie.destroy
     flash.keep[:notice] = "Movie '#{@movie.title}' deleted."
-    redirect_to :sort_method => @sort_type, :ratings => @selected_ratings and return 
+    redirect_to movies_path :sort_method => @sort_type, :ratings => @selected_ratings and return 
   end
 
 end
