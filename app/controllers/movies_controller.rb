@@ -19,10 +19,13 @@ class MoviesController < ApplicationController
     params[:sort_method] ||= session[:sort_type]
     session[:sort_type] = params[:sort_method]
     
-    if session[:selected_ratings] == nil
+    @selected_ratings = session[:selected_ratings]
+    @sort_type = session[:sort_type]
+    
+    if @selected_ratings == nil
       @check_hash = {"G" => "2", "PG" => "2","PG-13" => "2", "R" => "2"}
       @selected_ratings = Movie.all_ratings
-      case session[:sort_type]
+      case @sort_type
       when 'movie_title'
         @title_header = "hilite"
         @movies = Movie.where(:rating => @selected_ratings).order(:title => :asc)
@@ -34,16 +37,16 @@ class MoviesController < ApplicationController
       end
     
     else
-      @check_hash = session[:selected_ratings]
-      case session[:sort_type]
+      @check_hash = @selected_ratings
+      case @sort_type
       when 'movie_title'
         @title_header = "hilite"
-        @movies = Movie.where(:rating => session[:selected_ratings].keys).order(:title => :asc)
+        @movies = Movie.where(:rating => @selected_ratings.keys).order(:title => :asc)
       when 'date_released'
         @release_date_header = "hilite"
-        @movies = Movie.where(:rating => session[:selected_ratings].keys).order(:release_date => :asc)
+        @movies = Movie.where(:rating => @selected_ratings.keys).order(:release_date => :asc)
       else
-        @movies = Movie.where(:rating => session[:selected_ratings].keys)
+        @movies = Movie.where(:rating => @selected_ratings.keys)
       end
     end
   end
@@ -54,8 +57,8 @@ class MoviesController < ApplicationController
 
   def create
     @movie = Movie.create!(movie_params)
-    flash[:notice] = "#{@movie.title} was successfully created."
-    redirect_to movies_path
+    flash.keep[:notice] = "#{@movie.title} was successfully created."
+    redirect_to :sort_method => @sort_type, :ratings => @selected_ratings and return 
   end
 
   def edit
@@ -65,15 +68,15 @@ class MoviesController < ApplicationController
   def update
     @movie = Movie.find params[:id]
     @movie.update_attributes!(movie_params)
-    flash[:notice] = "#{@movie.title} was successfully updated."
-    redirect_to movie_path(@movie)
+    flash.keep[:notice] = "#{@movie.title} was successfully updated."
+    redirect_to :sort_method => @sort_type, :ratings => @selected_ratings and return 
   end
 
   def destroy
     @movie = Movie.find(params[:id])
     @movie.destroy
-    flash[:notice] = "Movie '#{@movie.title}' deleted."
-    redirect_to movies_path
+    flash.keep[:notice] = "Movie '#{@movie.title}' deleted."
+    redirect_to :sort_method => @sort_type, :ratings => @selected_ratings and return 
   end
 
 end
